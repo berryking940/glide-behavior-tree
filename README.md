@@ -1,7 +1,3 @@
-# glide-behavior-tree
-Genshin-style gliding system behavior tree visualization
-# 원신 활공 시스템 Behavior Tree
-
 ```mermaid
 flowchart TD
     A[ROOT] --> B{Glide Root (Selector)}
@@ -38,4 +34,3 @@ flowchart TD
     G --> G1[Condition: IsGlidingFlag FALSE]
     G --> G2[Action: Idle/NormalAirPhysics]
 ```
-
