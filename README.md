@@ -1,36 +1,33 @@
-```mermaid
-flowchart TD
-    A[ROOT] --> B{Glide Root (Selector)}
-    B --> C[Sequence: Start Glide]
-    C --> C1[Condition: IsInAir]
-    C --> C2[Condition: AboveMinHeight]
-    C --> C3[Condition: HasStamina(minStartStamina)]
-    C --> C4[Condition: Input_IsGlidePressed]
-    C --> C5[Action: EnterGlide (anim, set flags)]
-    C --> C6[Action: StartGlideLoop (state init)]
-
-    B --> D[Sequence: Glide Loop]
-    D --> D1[Condition: IsGlidingFlag TRUE]
-    D --> D2{Selector: Glide Logic}
-
-    D2 --> E[Sequence: Glide Continue]
-    E --> E1[Condition: NotCollidedSurface]
-    E --> E2[Condition: HasStamina(minSustainStamina)]
-    E --> E3[Action: ApplyGlidePhysics]
-    E --> E4[Action: DrainStamina(rate * dt)]
-    E --> E5[Action: HandleInputsDuringGlide]
-    E --> E6[Action: SpawnGlideVFX/SFX]
-
-    D2 --> F[Sequence: Glide Exit Conditions]
-    F --> F1{Selector: Exit Reason}
-    F1 --> F11[Condition: CollidedSurface]
-    F1 --> F12[Condition: StaminaDepleted]
-    F1 --> F13[Condition: Input_GlideReleased]
-    F --> F2[Action: ExitGlide (anim, unset flags)]
-
-    D --> D3[Action: UpdateGlideState]
-
-    B --> G[Fallback: NotGliding]
-    G --> G1[Condition: IsGlidingFlag FALSE]
-    G --> G2[Action: Idle/NormalAirPhysics]
-```
+ROOT
+└── Selector (Glide Root)
+    ├── Sequence (Start Glide)
+    │   ├── Condition: IsInAir
+    │   ├── Condition: AboveMinHeight
+    │   ├── Condition: HasStamina(minStartStamina)
+    │   ├── Condition: Input_IsGlidePressed
+    │   ├── Action: EnterGlide (play anim, set flags, apply initial velocity)
+    │   └── Action: StartGlideLoop (set glide state)
+    │
+    ├── Sequence (Glide Loop)  <-- 반복(동안) 노드 / 우선 실행되는 플로우
+    │   ├── Condition: IsGlidingFlag TRUE
+    │   ├── Selector
+    │   │   ├── Sequence (Glide Continue)
+    │   │   │   ├── Condition: NotCollidedSurface
+    │   │   │   ├── Condition: HasStamina(minSustainStamina)
+    │   │   │   ├── Action: ApplyGlidePhysics (gravity mod, forward lift, air control)
+    │   │   │   ├── Action: DrainStamina (rate * dt)
+    │   │   │   ├── Action: HandleInputsDuringGlide (steer, accelerate, dive)
+    │   │   │   └── Action: SpawnGlideVFX/SFX
+    │   │   │
+    │   │   └── Sequence (Glide Exit Conditions)
+    │   │       ├── Selector
+    │   │       │   ├── Condition: CollidedSurface
+    │   │       │   ├── Condition: StaminaDepleted
+    │   │       │   └── Condition: Input_GlideReleased
+    │   │       └── Action: ExitGlide (play land anim or transition, unset flags)
+    │   │
+    │   └── Action: UpdateGlideState (blackboard updates)
+    │
+    └── Fallback (NotGliding)
+        ├── Condition: IsGlidingFlag FALSE
+        └── Action: Idle/NormalAirPhysics
